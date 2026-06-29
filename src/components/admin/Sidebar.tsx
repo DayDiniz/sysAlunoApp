@@ -1,5 +1,10 @@
-import React from 'react';
-import { LayoutDashboard, Users, GraduationCap, BookOpen, CalendarRange, Building2, ChevronLeft, ChevronRight, BarChart2, Settings } from 'lucide-react';
+import React, { useState } from 'react';
+import {
+  LayoutDashboard, BookOpen, Calendar, Users, MessageSquare,
+  Building2, DollarSign, Settings, ChevronDown, ChevronRight,
+  FileText, HelpCircle, BarChart2, GraduationCap, FlaskConical,
+  ChevronLeft, ClipboardList
+} from 'lucide-react';
 import type { Page } from '../../App';
 
 interface SidebarProps {
@@ -9,18 +14,104 @@ interface SidebarProps {
   onToggle: () => void;
 }
 
-const navItems = [
-  { id: 'dashboard' as Page, label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'alunos' as Page, label: 'Alunos', icon: Users },
-  { id: 'professores' as Page, label: 'Professores', icon: GraduationCap },
-  { id: 'turmas' as Page, label: 'Turmas', icon: BookOpen },
-  { id: 'grade' as Page, label: 'Grade Horária', icon: CalendarRange },
-  { id: 'espacos' as Page, label: 'Espaços Físicos', icon: Building2 },
-  { id: 'relatorios' as Page, label: 'Relatórios e Ano Letivo', icon: BarChart2 },
-  { id: 'configuracoes' as Page, label: 'Configurações', icon: Settings },
+interface NavChild { id: Page; label: string; }
+interface NavGroup {
+  id: string;
+  label: string;
+  icon: React.ElementType;
+  children?: NavChild[];
+  page?: Page;
+  dividerBefore?: boolean;
+}
+
+const NAV: NavGroup[] = [
+  {
+    id: 'painel',
+    label: 'Painel Central',
+    icon: LayoutDashboard,
+    children: [
+      { id: 'dashboard', label: 'Dashboard' },
+      { id: 'relatorios', label: 'Central de Relatórios' },
+      { id: 'faq', label: 'FAQ e Central de Ajuda' },
+    ],
+  },
+  {
+    id: 'diario',
+    label: 'Diário de Aula',
+    icon: BookOpen,
+    page: 'diario',
+  },
+  {
+    id: 'calendario',
+    label: 'Calendário Escolar',
+    icon: Calendar,
+    children: [
+      { id: 'calendario-ano', label: 'Ano Letivo' },
+      { id: 'calendario-periodos', label: 'Períodos' },
+      { id: 'calendario-atribuicao', label: 'Atribuição Docente' },
+    ],
+  },
+  {
+    id: 'cadastros',
+    label: 'Cadastros',
+    icon: Users,
+    children: [
+      { id: 'alunos', label: 'Alunos' },
+      { id: 'professores', label: 'Professores' },
+      { id: 'disciplinas', label: 'Disciplinas (BNCC)' },
+    ],
+  },
+  {
+    id: 'comunicacao',
+    label: 'Comunicação',
+    icon: MessageSquare,
+    children: [
+      { id: 'comunicacao-interna', label: 'Interna' },
+      { id: 'comunicacao-externa', label: 'Externa' },
+      { id: 'comunicacao-atendimento', label: 'Atendimento Acadêmico' },
+    ],
+  },
+  {
+    id: 'ambientes',
+    label: 'Ambientes',
+    icon: Building2,
+    children: [
+      { id: 'espacos', label: 'Mapa de Ambientes' },
+      { id: 'ambientes-vagas', label: 'Gestão de Vagas' },
+    ],
+  },
+  {
+    id: 'financeiro',
+    label: 'Financeiro',
+    icon: DollarSign,
+    page: 'financeiro',
+  },
+  {
+    id: 'configuracoes',
+    label: 'Configurações',
+    icon: Settings,
+    page: 'configuracoes',
+    dividerBefore: true,
+  },
 ];
 
 export default function Sidebar({ activePage, onNavigate, isOpen, onToggle }: SidebarProps) {
+  // Inicializa com o grupo do activePage aberto
+  const getInitialOpen = () => {
+    for (const group of NAV) {
+      if (group.children?.some(c => c.id === activePage)) return group.id;
+      if (group.page === activePage) return group.id;
+    }
+    return 'painel';
+  };
+
+  const [openGroup, setOpenGroup] = useState<string>(getInitialOpen);
+
+  const toggleGroup = (id: string) => setOpenGroup(prev => prev === id ? '' : id);
+
+  const isChildActive = (group: NavGroup) =>
+    group.children?.some(c => c.id === activePage) || group.page === activePage;
+
   return (
     <aside className={`${isOpen ? 'w-60' : 'w-16'} transition-all duration-300 bg-[#0f172b] flex flex-col shrink-0 relative`}>
       {/* Logo */}
@@ -37,24 +128,70 @@ export default function Sidebar({ activePage, onNavigate, isOpen, onToggle }: Si
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto no-scrollbar">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activePage === item.id;
+      <nav className="flex-1 py-3 px-2 space-y-0.5 overflow-y-auto no-scrollbar">
+        {NAV.map((group) => {
+          const Icon = group.icon;
+          const isActive = isChildActive(group);
+          const isExpanded = openGroup === group.id;
+          const hasChildren = !!group.children;
+
           return (
-            <button
-              key={item.id}
-              onClick={() => onNavigate(item.id)}
-              title={!isOpen ? item.label : undefined}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all cursor-pointer group ${
-                isActive
-                  ? 'bg-[#0066cc] text-white'
-                  : 'text-slate-400 hover:bg-white/6 hover:text-white'
-              }`}
-            >
-              <Icon className="w-4.5 h-4.5 shrink-0" />
-              {isOpen && <span className="text-sm font-semibold truncate">{item.label}</span>}
-            </button>
+            <div key={group.id}>
+              {group.dividerBefore && (
+                <div className="mx-2 my-3 border-t border-white/8" />
+              )}
+
+              {/* Group header */}
+              <button
+                onClick={() => {
+                  if (hasChildren) {
+                    toggleGroup(group.id);
+                    if (isOpen) return;
+                  }
+                  if (group.page) onNavigate(group.page);
+                  else if (group.children) onNavigate(group.children[0].id);
+                }}
+                title={!isOpen ? group.label : undefined}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all cursor-pointer group ${
+                  isActive
+                    ? 'bg-[#0066cc]/15 text-white'
+                    : 'text-slate-400 hover:bg-white/6 hover:text-white'
+                }`}
+              >
+                <Icon className={`w-4.5 h-4.5 shrink-0 ${isActive ? 'text-[#0066cc]' : ''}`} />
+                {isOpen && (
+                  <>
+                    <span className="flex-1 text-sm font-semibold truncate">{group.label}</span>
+                    {hasChildren && (
+                      <ChevronDown className={`w-3.5 h-3.5 text-slate-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                    )}
+                    {!hasChildren && isActive && (
+                      <ChevronRight className="w-3.5 h-3.5 text-[#0066cc]" />
+                    )}
+                  </>
+                )}
+              </button>
+
+              {/* Children */}
+              {isOpen && hasChildren && isExpanded && (
+                <div className="ml-4 pl-3 border-l border-white/8 mt-0.5 mb-1 space-y-0.5">
+                  {group.children!.map(child => (
+                    <button
+                      key={child.id}
+                      onClick={() => onNavigate(child.id)}
+                      className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl text-left transition-all cursor-pointer ${
+                        activePage === child.id
+                          ? 'bg-[#0066cc] text-white'
+                          : 'text-slate-400 hover:bg-white/6 hover:text-white'
+                      }`}
+                    >
+                      <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${activePage === child.id ? 'bg-white' : 'bg-slate-600'}`} />
+                      <span className="text-xs font-semibold truncate">{child.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           );
         })}
       </nav>
