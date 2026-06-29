@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard';
 import Alunos from './pages/Alunos';
 import Configuracoes from './pages/Configuracoes';
 import Relatorios from './pages/Relatorios';
+import { MapaAmbientes, GestaoVagas } from './pages/Ambientes';
 import Sidebar from './components/admin/Sidebar';
 import Topbar from './components/admin/Topbar';
 import { Professores, Turmas, Grade, Espacos } from './pages/Pages';
@@ -76,8 +77,8 @@ export default function App() {
     'comunicacao-interna': <EmBreve titulo="Comunicação Interna" />,
     'comunicacao-externa': <EmBreve titulo="Comunicação Externa" />,
     'comunicacao-atendimento': <EmBreve titulo="Atendimento Acadêmico" />,
-    espacos: <Espacos />,
-    'ambientes-vagas': <EmBreve titulo="Gestão de Vagas" />,
+    espacos: <MapaAmbientes />,
+    'ambientes-vagas': <GestaoVagas />,
     financeiro: <EmBreve titulo="Financeiro" />,
     configuracoes: <Configuracoes />,
   };
