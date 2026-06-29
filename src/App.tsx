@@ -6,10 +6,11 @@ import Professores from './pages/Professores';
 import Turmas from './pages/Turmas';
 import Grade from './pages/Grade';
 import Espacos from './pages/Espacos';
+import Relatorios from './pages/Relatorios';
 import Sidebar from './components/admin/Sidebar';
 import Topbar from './components/admin/Topbar';
 
-export type Page = 'dashboard' | 'alunos' | 'professores' | 'turmas' | 'grade' | 'espacos';
+export type Page = 'dashboard' | 'alunos' | 'professores' | 'turmas' | 'grade' | 'espacos' | 'relatorios';
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -25,6 +26,7 @@ export default function App() {
     turmas: <Turmas />,
     grade: <Grade />,
     espacos: <Espacos />,
+    relatorios: <Relatorios />,
   };
 
   const pageTitles: Record<Page, string> = {
@@ -34,6 +36,7 @@ export default function App() {
     turmas: 'Turmas',
     grade: 'Grade Horária',
     espacos: 'Espaços Físicos',
+    relatorios: 'Relatórios e Ano Letivo',
   };
 
   return (

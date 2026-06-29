@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Users, GraduationCap, BookOpen, CalendarRange, Building2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Users, GraduationCap, BookOpen, CalendarRange, Building2, ChevronLeft, ChevronRight, BarChart2 } from 'lucide-react';
 import type { Page } from '../../App';
 
 interface SidebarProps {
@@ -16,6 +16,7 @@ const navItems = [
   { id: 'turmas' as Page, label: 'Turmas', icon: BookOpen },
   { id: 'grade' as Page, label: 'Grade Horária', icon: CalendarRange },
   { id: 'espacos' as Page, label: 'Espaços Físicos', icon: Building2 },
+  { id: 'relatorios' as Page, label: 'Relatórios e Ano Letivo', icon: BarChart2 },
 ];
 
 export default function Sidebar({ activePage, onNavigate, isOpen, onToggle }: SidebarProps) {
